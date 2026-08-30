@@ -79,3 +79,11 @@ Trabajamos con **forks + `upstream`** (el flujo de colaboración real del open s
 | **RA07** | Asistencia entre pares (revisión de código) |
 
 *Comisión S32 · Desarrollo de Software 2026 · UTN FR La Plata · Aula invertida + TCI.*
+
+---
+
+## 👨‍🎓 Integrantes 
+
+| Legajo | Nombre y apellido | Email |
+| --- | --- | --- |
+| 33112 | HRYNKIEWICZ, CRISTIAN | croshkz@gmail.com
