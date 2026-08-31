@@ -87,3 +87,4 @@ Trabajamos con **forks + `upstream`** (el flujo de colaboración real del open s
 | Legajo | Nombre y apellido | Email |
 | --- | --- | --- |
 | 33112 | HRYNKIEWICZ, CRISTIAN | croshkz@gmail.com
+| 33292 | HERNANDEZ ULANIO, NAHUEL | nahuelulanio1@gmail.com
