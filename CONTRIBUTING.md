@@ -2,7 +2,7 @@
 
 ## Modelo de ramas: Feature Branch Flow
 
-Una feature = una rama = un PR. `main` siempre queda estable.
+feature branch → PR → review.
 
 No mezclamos dos cambios distintos en la misma rama. Si no tienen relación, son dos ramas y dos PRs.
 
@@ -77,3 +77,47 @@ Un commit por idea atómica. No "todo junto al final".
 - Pushear directo a `main`.
 - Subir credenciales, tokens o secretos.
 - Mergear tu propio PR.
+
+
+## Workflow elegido y justificación
+
+Elegimos **GitHub Flow** por los siguientes motivos:
+
+1. **Tamaño del equipo.** Somos 3 integrantes en el TCI. Un modelo con
+   `develop`, `release/*` y `hotfix/*` implicaría más ramas de larga vida que
+   personas trabajando, y cada cambio habría que integrarlo dos veces. GitHub
+   Flow nos da lo mínimo necesario sin agregar complejidad que no vamos a usar.
+
+2. **Claridad del historial.** Con una única rama estable (`main`) y una rama
+   corta por cada feature, siempre está claro qué se está desarrollando y dónde.
+   `main` queda permanentemente actualizada y en condiciones de ser entregada,
+   así que cualquier desarrollo nuevo parte de una base confiable.
+
+3. **Revisión cruzada obligatoria.** Al integrar todo mediante Pull Request con
+   aprobación de un compañero, ningún cambio entra sin que al menos dos personas
+   lo hayan visto. Esto distribuye el conocimiento del proyecto entre los tres,
+   evita que alguien quede desactualizado respecto de lo que hicieron los demás
+   y detecta errores antes de que lleguen a `main`.
+
+
+## Acciones concretas que nos demanda el flow
+
+1. **main nunca se toca directo.** Activamos la protección de rama en GitHub
+   para que no se pueda pushear directo y todo entre por Pull Request.
+
+2. **Cada tarea = una rama nueva desde `main` actualizado.** Antes de empezar,
+   actualizamos `main` local. Una rama por issue, nombrada con el número y una
+   descripción corta (`feature/12-login-usuario`).
+
+3. **Commits chicos y frecuentes.** Un commit por cambio con sentido propio,
+   mensaje descriptivo en imperativo, y push diario para que el resto vea el avance.
+
+4. **Abrir PR de la rama a `main`.** Con el issue vinculado, qué resuelve y cómo
+   probarlo. Se abre apenas hay algo revisable, no después de una semana de trabajo.
+
+5. **Al menos 1 review de un par.** El reviewer baja la rama, la prueba y aprueba
+   o deja comentarios. Las correcciones van como commits nuevos en la misma rama.
+   Rotamos quién revisa entre los 3.
+
+6. **Merge y limpieza.** Mergea el reviewer, no el autor. Después se borra la rama
+   y el resto del equipo actualiza su `main` local.   
