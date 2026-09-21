@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Sistema de control </title>
+    <link rel="stylesheet" type="text/css" href="styles.css" media="screen"/>
+    <script src="app.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Registro de Incidencia</h1>
+  </header>
+  <main>
+    
+    <form id="form-incidencia">
+      <label for="maquina">Máquina</label>
+      <input type="text" id="codigo-maquina" placeholder="Código QR de la máquina">
+
+      <label for="descripcion">Descripción del problema</label>
+      <textarea id="descripcion" placeholder="Describí el problema que observaste…"></textarea>
+
+      <label for="foto">Foto</label>
+      <input type="file" id="foto" accept="image/*">
+
+      <label for="turno">Turno</label>
+      <select id="turno">
+        <option value="manana">Mañana</option>
+        <option value="tarde">Tarde</option>
+        <option value="noche">Noche</option>
+      </select>
+
+      <button id="btn-enviar" type="submit">Enviar</button>
+    </form>
+
+    <div id="preview-incidencia" hidden></div>
+    
+   </main>
+  <footer>
+    <p> Turno tarde </p>
+    <p> - GRUPO 3 - Desarrollo de Software - S32 - UTN - </p>
+    <p> - HERNANDEZ - HRYNKIEWICZ - HURST - </p>
+  </footer>
+</body>
+</html>
