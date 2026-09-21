@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Sistema de control </title>
     <link rel="stylesheet" type="text/css" href="styles.css" media="screen"/>
+    <script src="app.js" defer></script>
 </head>
 <body>
   <header>
@@ -13,9 +14,9 @@
   </header>
   <main>
     
-    <form>
+    <form id="form-incidencia">
       <label for="maquina">Máquina</label>
-      <input type="text" id="maquina" placeholder="Código QR de la máquina">
+      <input type="text" id="codigo-maquina" placeholder="Código QR de la máquina">
 
       <label for="descripcion">Descripción del problema</label>
       <textarea id="descripcion" placeholder="Describí el problema que observaste…"></textarea>
@@ -30,7 +31,7 @@
         <option value="noche">Noche</option>
       </select>
 
-      <button type="submit">Enviar</button>
+      <button id="btn-enviar" type="submit">Enviar</button>
     </form>
    </main>
   <footer>
