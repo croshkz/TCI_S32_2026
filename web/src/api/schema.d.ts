@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Inicia sesión y devuelve un JWT */
+        post: operations["iniciarSesion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/me": {
         parameters: {
             query?: never;
@@ -231,6 +248,27 @@ export interface components {
             nombre: string;
             rol: components["schemas"]["Rol"];
         };
+        LoginPedido: {
+            /** @example mantenimiento */
+            usuario: string;
+            /**
+             * Format: password
+             * @example planta2026
+             */
+            password: string;
+        };
+        LoginRespuesta: {
+            /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... */
+            access_token: string;
+            /** @example bearer */
+            token_type: string;
+            /**
+             * @description Segundos hasta que vence el token.
+             * @example 28800
+             */
+            expira_en: number;
+            usuario: components["schemas"]["Usuario"];
+        };
         Incidencia: {
             /** @example INC-0003 */
             id: string;
@@ -409,6 +447,46 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    iniciarSesion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginPedido"];
+            };
+        };
+        responses: {
+            /** @description Credenciales válidas. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginRespuesta"];
+                };
+            };
+            /** @description Usuario o contraseña incorrectos. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "codigo": "CREDENCIALES_INVALIDAS",
+                     *       "mensaje": "Usuario o contraseña incorrectos."
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            422: components["responses"]["DatosInvalidos"];
         };
     };
     usuarioActual: {

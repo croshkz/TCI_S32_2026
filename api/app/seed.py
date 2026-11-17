@@ -1,12 +1,58 @@
-"""Carga datos de ejemplo si la base está vacía. Se ejecuta después de las migraciones."""
+"""Carga datos de ejemplo si la base está vacía. Se ejecuta después de las migraciones.
+
+Es idempotente: cuentas y datos de planta se siembran por separado y cada parte solo se
+carga si su tabla está vacía, así que correrlo dos veces no duplica nada.
+"""
+
+from dataclasses import dataclass
+from functools import cache
 
 from sqlmodel import Session, select
 
 from app.db import engine
-from app.models import EstadoIncidencia, Incidencia, Maquina, Repuesto, Turno, Ubicacion
+from app.models import Cuenta, EstadoIncidencia, Incidencia, Maquina, Repuesto, Rol, Turno, Ubicacion
+from app.seguridad import hashear
+
+PASSWORD_DEMO = "planta2026"
+
+
+@dataclass(frozen=True)
+class CuentaDemo:
+    usuario: str
+    nombre: str
+    rol: Rol
+
+
+CUENTAS_DEMO = [
+    CuentaDemo("operario", "Operario Demo", Rol.OPERARIO),
+    CuentaDemo("mantenimiento", "Mantenimiento Demo", Rol.MANTENIMIENTO),
+    CuentaDemo("encargado", "Encargado Demo", Rol.ENCARGADO),
+    CuentaDemo("gerencia", "Gerencia Demo", Rol.CONSULTA),
+]
+
+
+@cache
+def _hash_demo(usuario: str) -> str:
+    # El hash es lento a propósito; se calcula una vez por cuenta y proceso (acelera los tests).
+    return hashear(PASSWORD_DEMO)
 
 
 def sembrar(session: Session) -> None:
+    _sembrar_cuentas(session)
+    _sembrar_planta(session)
+
+
+def _sembrar_cuentas(session: Session) -> None:
+    if session.exec(select(Cuenta)).first() is not None:
+        return
+    session.add_all(
+        Cuenta(usuario=c.usuario, nombre=c.nombre, rol=c.rol, password_hash=_hash_demo(c.usuario))
+        for c in CUENTAS_DEMO
+    )
+    session.commit()
+
+
+def _sembrar_planta(session: Session) -> None:
     if session.exec(select(Repuesto)).first() is not None:
         return
 

@@ -1,13 +1,12 @@
 import logging
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.auth import Usuario, usuario_actual
 from app.errores import ErrorDeDominio
-from app.routers import incidencias, repuestos, reservas
-from app.schemas import HealthRespuesta, UsuarioRespuesta
+from app.routers import auth, incidencias, repuestos, reservas
+from app.schemas import HealthRespuesta
 
 logging.basicConfig(level=logging.INFO)
 
@@ -37,11 +36,7 @@ def health() -> HealthRespuesta:
     return HealthRespuesta(status="ok")
 
 
-@app.get("/auth/me", response_model=UsuarioRespuesta, tags=["auth"])
-def usuario_logueado(usuario: Usuario = Depends(usuario_actual)) -> UsuarioRespuesta:
-    return UsuarioRespuesta(nombre=usuario.nombre, rol=usuario.rol)
-
-
+app.include_router(auth.router)
 app.include_router(incidencias.router)
 app.include_router(repuestos.router)
 app.include_router(reservas.router)

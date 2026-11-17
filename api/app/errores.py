@@ -30,3 +30,10 @@ class PermisoDenegado(ErrorDeDominio):
 
     def __init__(self, mensaje: str = "Tu rol no tiene permiso para esta operación.") -> None:
         super().__init__("PERMISO_DENEGADO", mensaje)
+
+
+class CredencialesInvalidas(ErrorDeDominio):
+    status_code = 401
+
+    def __init__(self) -> None:
+        super().__init__("CREDENCIALES_INVALIDAS", "Usuario o contraseña incorrectos.")

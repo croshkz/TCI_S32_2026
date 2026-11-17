@@ -141,3 +141,14 @@ class MovimientoStock(SQLModel, table=True):
     referencia: str
     usuario: str
     fecha: datetime = Field(default_factory=ahora)
+
+
+class Cuenta(SQLModel, table=True):
+    """Cuenta de acceso al sistema. La contraseña se guarda solo como hash (ver app/seguridad.py)."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    usuario: str = Field(unique=True, index=True)
+    nombre: str
+    rol: Rol
+    password_hash: str
+    activa: bool = True

@@ -4,8 +4,8 @@ from zoneinfo import ZoneInfo
 
 from sqlmodel import Session
 
-from app.auth import Usuario
-from app.errores import NoEncontrado, PermisoDenegado, ReglaDeNegocio
+from app.auth import Usuario, crear_token
+from app.errores import CredencialesInvalidas, NoEncontrado, PermisoDenegado, ReglaDeNegocio
 from app.models import (
     EstadoIncidencia,
     EstadoReserva,
@@ -23,12 +23,14 @@ from app.models import (
 )
 from app.notificaciones import Notificador
 from app.repositories import (
+    CuentaRepository,
     IncidenciaRepository,
     MaquinaRepository,
     RepuestoRepository,
     ReservaRepository,
     UbicacionRepository,
 )
+from app.seguridad import verificar
 
 ZONA_PLANTA = ZoneInfo("America/Argentina/Buenos_Aires")
 
@@ -318,4 +320,25 @@ class ReservaService:
             cantidad=reserva.cantidad,
             referencia=reserva.codigo,
             usuario=usuario.nombre,
+        )
+
+
+@dataclass(frozen=True)
+class Sesion:
+    token: str
+    usuario: Usuario
+
+
+class AuthService:
+    def __init__(self, session: Session) -> None:
+        self.cuentas = CuentaRepository(session)
+
+    def iniciar_sesion(self, usuario: str, password: str) -> Sesion:
+        cuenta = self.cuentas.obtener_por_usuario(usuario)
+        # Mismo error si no existe el usuario o si la contraseña no coincide: no se revela cuál falló.
+        if cuenta is None or not cuenta.activa or not verificar(password, cuenta.password_hash):
+            raise CredencialesInvalidas()
+        return Sesion(
+            token=crear_token(cuenta.usuario, cuenta.nombre, cuenta.rol),
+            usuario=Usuario(cuenta.nombre, cuenta.rol),
         )

@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react'
-import { obtenerHealth, ROLES, usarRol, type Rol } from './api/client'
+import {
+  cerrarSesion,
+  ETIQUETAS_ROL,
+  EVENTO_SESION_VENCIDA,
+  obtenerHealth,
+  usuarioActual,
+  type Usuario,
+} from './api/client'
 import Incidencia from './pages/Incidencia'
 import RegistrarUso from './pages/RegistrarUso'
 import CargarStock from './pages/CargarStock'
+import Login from './pages/Login'
 
 const VISTAS = [
   { id: 'incidencia', etiqueta: 'Incidencia', titulo: 'Registro de Incidencia', Componente: Incidencia },
@@ -20,12 +28,27 @@ function vistaDesdeHash() {
 export default function App() {
   const [vista, setVista] = useState(vistaDesdeHash)
   const [servicio, setServicio] = useState<EstadoServicio>('verificando')
-  const [rol, setRol] = useState<Rol>('MANTENIMIENTO')
+  const [usuario, setUsuario] = useState<Usuario | null>(usuarioActual)
+  const [aviso, setAviso] = useState<string | null>(null)
 
-  function cambiarRol(nuevo: Rol) {
-    usarRol(nuevo)
-    setRol(nuevo)
+  function ingresar(nuevo: Usuario) {
+    setAviso(null)
+    setUsuario(nuevo)
   }
+
+  function salir() {
+    cerrarSesion()
+    setUsuario(null)
+  }
+
+  useEffect(() => {
+    const alVencer = () => {
+      setUsuario(null)
+      setAviso('Tu sesión venció. Volvé a ingresar.')
+    }
+    window.addEventListener(EVENTO_SESION_VENCIDA, alVencer)
+    return () => window.removeEventListener(EVENTO_SESION_VENCIDA, alVencer)
+  }, [])
 
   useEffect(() => {
     const alCambiarHash = () => setVista(vistaDesdeHash())
@@ -34,8 +57,8 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    document.title = vista.titulo
-  }, [vista])
+    document.title = usuario ? vista.titulo : 'Ingresar'
+  }, [vista, usuario])
 
   useEffect(() => {
     obtenerHealth()
@@ -45,19 +68,42 @@ export default function App() {
 
   const { Componente } = vista
 
+  const pie = (
+    <footer>
+      <p className={`estado-servicio estado-${servicio}`} role="status">
+        Servicio: {servicio === 'verificando' ? 'verificando…' : servicio === 'ok' ? 'en línea' : 'sin conexión'}
+      </p>
+      <p>Turno tarde</p>
+      <p>- GRUPO 3 - Desarrollo de Software - S32 - UTN -</p>
+      <p>- HERNANDEZ - HRYNKIEWICZ - HURST -</p>
+    </footer>
+  )
+
+  if (!usuario) {
+    return (
+      <div className="app-container">
+        <header>
+          <h1>Ingresar</h1>
+        </header>
+        <main>
+          <Login onIngreso={ingresar} aviso={aviso} />
+        </main>
+        {pie}
+      </div>
+    )
+  }
+
   return (
     <div className="app-container">
       <header>
         <h1>{vista.titulo}</h1>
-        <div className="selector-rol">
-          <label htmlFor="rol">Ingresar como</label>
-          <select id="rol" value={rol} onChange={(evento) => cambiarRol(evento.target.value as Rol)}>
-            {ROLES.map((item) => (
-              <option key={item.rol} value={item.rol}>
-                {item.etiqueta}
-              </option>
-            ))}
-          </select>
+        <div className="sesion-usuario">
+          <span>
+            {usuario.nombre} · {ETIQUETAS_ROL[usuario.rol]}
+          </span>
+          <button type="button" className="btn-secundario" onClick={salir}>
+            Salir
+          </button>
         </div>
         <nav aria-label="Navegación principal">
           <ul>
@@ -73,17 +119,10 @@ export default function App() {
       </header>
 
       <main>
-        <Componente key={`${vista.id}-${rol}`} />
+        <Componente key={`${vista.id}-${usuario.rol}`} />
       </main>
 
-      <footer>
-        <p className={`estado-servicio estado-${servicio}`} role="status">
-          Servicio: {servicio === 'verificando' ? 'verificando…' : servicio === 'ok' ? 'en línea' : 'sin conexión'}
-        </p>
-        <p>Turno tarde</p>
-        <p>- GRUPO 3 - Desarrollo de Software - S32 - UTN -</p>
-        <p>- HERNANDEZ - HRYNKIEWICZ - HURST -</p>
-      </footer>
+      {pie}
     </div>
   )
 }

@@ -3,7 +3,7 @@ from sqlmodel import Session
 
 from app.db import get_session
 from app.notificaciones import Notificador, get_notificador
-from app.services import IncidenciaService, ReservaService, StockService
+from app.services import AuthService, IncidenciaService, ReservaService, StockService
 
 
 def stock_service(
@@ -22,3 +22,7 @@ def reserva_service(
     notificador: Notificador = Depends(get_notificador),
 ) -> ReservaService:
     return ReservaService(session, notificador)
+
+
+def auth_service(session: Session = Depends(get_session)) -> AuthService:
+    return AuthService(session)

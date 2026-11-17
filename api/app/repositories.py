@@ -4,6 +4,7 @@ from sqlalchemy import func
 from sqlmodel import Session, SQLModel, select
 
 from app.models import (
+    Cuenta,
     EstadoIncidencia,
     EstadoReserva,
     Incidencia,
@@ -86,3 +87,8 @@ class ReservaRepository(Repositorio):
             .where(Reserva.estado == EstadoReserva.ACTIVA)
             .order_by(Reserva.id)
         ).all()
+
+
+class CuentaRepository(Repositorio):
+    def obtener_por_usuario(self, usuario: str) -> Cuenta | None:
+        return self.session.exec(select(Cuenta).where(Cuenta.usuario == usuario)).first()
