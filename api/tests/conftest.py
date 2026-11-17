@@ -7,17 +7,17 @@ from fastapi.testclient import TestClient
 from sqlalchemy import URL, Engine, make_url, text
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from app.auth import USUARIOS_STUB, Usuario
+from app.auth import Usuario, crear_token
 from app.db import get_session
 from app.main import app
 from app.models import Repuesto, Reserva, Rol
 from app.notificaciones import get_notificador
-from app.seed import sembrar
+from app.seed import CUENTAS_DEMO, sembrar
 
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL", "postgresql+psycopg://planta:planta@localhost:5432/planta_test"
 )
-TOKENS = {usuario.rol: token for token, usuario in USUARIOS_STUB.items()}
+CUENTAS = {cuenta.rol: cuenta for cuenta in CUENTAS_DEMO}
 
 
 @dataclass
@@ -81,11 +81,12 @@ def client(session: Session, notificador: NotificadorFalso, tmp_path, monkeypatc
 
 
 def auth(rol: Rol) -> dict[str, str]:
-    return {"Authorization": f"Bearer {TOKENS[rol]}"}
+    cuenta = CUENTAS[rol]
+    return {"Authorization": f"Bearer {crear_token(cuenta.usuario, cuenta.nombre, cuenta.rol)}"}
 
 
 def usuario(rol: Rol) -> Usuario:
-    return USUARIOS_STUB[TOKENS[rol]]
+    return Usuario(CUENTAS[rol].nombre, rol)
 
 
 def repuesto(session: Session, codigo: str = "REP-6204") -> Repuesto:

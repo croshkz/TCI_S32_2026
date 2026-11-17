@@ -2,10 +2,11 @@ openapi: 3.0.3
 
 info:
   title: API de Stock y Mantenimiento de Planta
-  version: 0.2.0
+  version: 0.3.0
   description: |
-    Auth stub: header `Authorization: Bearer <token>` con uno de estos tokens fijos:
-    `token-operario`, `token-mantenimiento`, `token-encargado`, `token-consulta`.
+    Auth con JWT: `POST /auth/login` con usuario y contraseña devuelve un `access_token`.
+    El resto de los endpoints lo reciben en el header `Authorization: Bearer <token>`.
+    El token está firmado (HS256), vence en 8 horas y lleva el rol del usuario.
 
 servers:
   - url: /api
@@ -17,7 +18,7 @@ tags:
   - name: sistema
     description: Estado del servicio (walking skeleton).
   - name: auth
-    description: Auth stub con tokens fijos por rol.
+    description: Login con JWT y usuario actual.
   - name: incidencias
     description: Reporte de incidencias y paso a reparación.
   - name: stock
@@ -42,6 +43,31 @@ paths:
                 required: [status]
                 properties:
                   status: { type: string, example: ok }
+
+  /auth/login:
+    post:
+      tags: [auth]
+      operationId: iniciarSesion
+      summary: Inicia sesión y devuelve un JWT
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginPedido' }
+      responses:
+        '200':
+          description: Credenciales válidas.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginRespuesta' }
+        '401':
+          description: Usuario o contraseña incorrectos.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example: { codigo: CREDENCIALES_INVALIDAS, mensaje: Usuario o contraseña incorrectos. }
+        '422': { $ref: '#/components/responses/DatosInvalidos' }
 
   /auth/me:
     get:
@@ -403,6 +429,22 @@ components:
       properties:
         nombre: { type: string, example: Mantenimiento Demo }
         rol: { $ref: '#/components/schemas/Rol' }
+
+    LoginPedido:
+      type: object
+      required: [usuario, password]
+      properties:
+        usuario: { type: string, minLength: 1, example: mantenimiento }
+        password: { type: string, minLength: 1, format: password, example: planta2026 }
+
+    LoginRespuesta:
+      type: object
+      required: [access_token, token_type, expira_en, usuario]
+      properties:
+        access_token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... }
+        token_type: { type: string, example: bearer }
+        expira_en: { type: integer, description: Segundos hasta que vence el token., example: 28800 }
+        usuario: { $ref: '#/components/schemas/Usuario' }
 
     Incidencia:
       type: object

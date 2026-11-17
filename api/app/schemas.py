@@ -18,6 +18,18 @@ class UsuarioRespuesta(BaseModel):
     rol: Rol
 
 
+class LoginPedido(BaseModel):
+    usuario: str = Field(min_length=1)
+    password: str = Field(min_length=1)
+
+
+class LoginRespuesta(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expira_en: int
+    usuario: UsuarioRespuesta
+
+
 class IncidenciaRespuesta(BaseModel):
     id: str
     estado: EstadoIncidencia

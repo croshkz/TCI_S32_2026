@@ -1,4 +1,4 @@
-"""Auth stub con roles, /health y el resto de los endpoints del contrato."""
+"""Auth por roles, /health y el resto de los endpoints del contrato."""
 
 from datetime import datetime
 
