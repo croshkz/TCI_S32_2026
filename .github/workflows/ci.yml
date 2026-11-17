@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: API · migraciones y pytest
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: planta
+          POSTGRES_USER: planta
+          POSTGRES_PASSWORD: planta
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U planta -d planta"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://planta:planta@localhost:5432/planta
+      TEST_DATABASE_URL: postgresql+psycopg://planta:planta@localhost:5432/planta_test
+      JWT_SECRET: ci-clave-de-pruebas-no-usar-en-produccion
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.16"
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-glob: api/uv.lock
+
+      - name: Instalar dependencias
+        run: uv sync --frozen
+
+      - name: Aplicar migraciones sobre una base vacía
+        run: uv run alembic upgrade head
+
+      - name: Correr la suite
+        run: uv run pytest -q
+
+  contrato-y-web:
+    name: Contrato · cliente generado · build del front
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            web/pnpm-lock.yaml
+
+      - name: Instalar dependencias
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --dir web install --frozen-lockfile
+
+      - name: Validar openapi.yaml
+        run: pnpm lint:contrato
+
+      - name: Verificar que schema.d.ts está sincronizado con el contrato
+        run: pnpm check:cliente
+
+      - name: Compilar el front
+        run: pnpm build

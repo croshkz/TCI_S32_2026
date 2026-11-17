@@ -7,6 +7,7 @@
     "install:all": "pnpm install && pnpm --dir web install && uv --directory api sync",
     "lint:contrato": "redocly lint openapi.yaml",
     "gen:api": "pnpm --dir web run gen:api",
+    "check:cliente": "pnpm run gen:api && git diff --exit-code -- web/src/api/schema.d.ts",
     "db": "docker compose up -d --wait db",
     "dev:mock": "prism mock openapi.yaml",
     "dev:api": "uv --directory api run alembic upgrade head && uv --directory api run python -m app.seed && uv --directory api run uvicorn app.main:app --reload --port 8000",
