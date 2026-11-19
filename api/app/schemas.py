@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
-from app.models import EstadoIncidencia, EstadoReserva, Rol
+from app.models import EstadoIncidencia, EstadoReserva, MovimientoStock, Rol, TipoMovimiento
 from app.services import EstadoStock
 
 
@@ -85,6 +87,24 @@ class UsoRespuesta(StockRespuesta):
     @classmethod
     def desde(cls, estado: EstadoStock) -> "UsoRespuesta":
         return cls(alerta_umbral=estado.bajo_umbral, **StockRespuesta.desde(estado).model_dump())
+
+
+class MovimientoRespuesta(BaseModel):
+    tipo: TipoMovimiento
+    cantidad: int
+    referencia: str
+    usuario: str
+    fecha: datetime
+
+    @classmethod
+    def desde(cls, movimiento: MovimientoStock) -> "MovimientoRespuesta":
+        return cls(
+            tipo=movimiento.tipo,
+            cantidad=movimiento.cantidad,
+            referencia=movimiento.referencia,
+            usuario=movimiento.usuario,
+            fecha=movimiento.fecha,
+        )
 
 
 class ReservaCrear(BaseModel):

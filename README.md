@@ -113,7 +113,8 @@ Las reservas todavía no tienen pantalla en el front; se prueban desde Swagger.
 2. **Reservar (RN-05).** `POST /reservas` con `{"repuesto_codigo": "REP-6204", "cantidad": 10, "motivo": "Preventivo caldera"}`. Responde físico 15, reservado 10, disponible 5, y genera la alerta de umbral.
 3. **Lo reservado no se usa en otra incidencia.** `POST /repuestos/REP-6204/usos` con `{"destino_id": "INC-0002", "cantidad": 6}`. Responde `409 STOCK_RESERVADO`.
 4. **Solo el Encargado libera.** `POST /reservas/RES-0001/liberacion` con el token de `mantenimiento` responde `403`. Repetí el login con `encargado`, volvé a autorizar y ejecutá la liberación: responde `200`, la reserva queda `LIBERADA` y el aviso aparece en `docker compose logs api`.
-5. **Pasar la incidencia nueva a reparación.** Con `mantenimiento`, `POST /incidencias/INC-0003/reparacion`. A partir de ahí `INC-0003` aparece como destino válido en **Registrar uso**.
+5. **Trazabilidad (RN-06).** `GET /repuestos/REP-6204/movimientos` devuelve la historia del repuesto en orden: los consumos en `INC-0001`, la recepción `REC-0001`, la reserva `RES-0001` y su liberación. Cualquier rol puede consultarla.
+6. **Pasar la incidencia nueva a reparación.** Con `mantenimiento`, `POST /incidencias/INC-0003/reparacion`. A partir de ahí `INC-0003` aparece como destino válido en **Registrar uso**.
 
 ## Tests
 
@@ -139,6 +140,7 @@ Los tests usan una base aparte (`planta_test`), que se crea sola y se vacía ant
 | [`test_rn01_descuento_por_uso.py`](api/tests/test_rn01_descuento_por_uso.py) | RN-01: el uso descuenta del stock físico y el stock nunca queda negativo. |
 | [`test_rn02_umbral.py`](api/tests/test_rn02_umbral.py) | RN-02: alerta cuando el disponible queda en el mínimo o por debajo. |
 | [`test_rn05_reservas.py`](api/tests/test_rn05_reservas.py) | RN-05: lo reservado no se usa en otra incidencia; solo el Encargado libera, con aviso inmediato. |
+| [`test_rn06_trazabilidad.py`](api/tests/test_rn06_trazabilidad.py) | RN-06: historial de movimientos del repuesto (recepción → uso → reservas), en orden y sin movimientos de usos rechazados. |
 | [`test_auth_jwt.py`](api/tests/test_auth_jwt.py) | Login, expiración y firma del token, que el rol no se pueda alterar editando el token, contraseñas hasheadas y seed idempotente. |
 | [`test_auth_y_endpoints.py`](api/tests/test_auth_y_endpoints.py) | 401 y 403 por rol, alta de incidencias con fotos, paso a reparación, turno y carga de stock (RN-08). |
 | [`test_incidencias.py`](api/tests/test_incidencias.py) | Flujo de incidencias: reporte con foto, máquina inexistente, permisos, paso a reparación y transición inválida. |

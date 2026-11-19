@@ -2,7 +2,7 @@ openapi: 3.0.3
 
 info:
   title: API de Stock y Mantenimiento de Planta
-  version: 0.3.0
+  version: 0.4.0
   description: |
     Auth con JWT: `POST /auth/login` con usuario y contraseña devuelve un `access_token`.
     El resto de los endpoints lo reciben en el header `Authorization: Bearer <token>`.
@@ -22,7 +22,7 @@ tags:
   - name: incidencias
     description: Reporte de incidencias y paso a reparación.
   - name: stock
-    description: Consulta de repuestos, usos (RN-01, RN-02) y recepciones (RN-08).
+    description: Consulta de repuestos, usos (RN-01, RN-02), recepciones (RN-08) y trazabilidad (RN-06).
   - name: reservas
     description: Reservas para mantenimiento preventivo (RN-05, RN-10).
 
@@ -172,6 +172,31 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Repuesto' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /repuestos/{codigo}/movimientos:
+    get:
+      tags: [stock]
+      operationId: listarMovimientos
+      summary: Historial de movimientos de un repuesto, del más antiguo al más reciente (RN-06)
+      description: |
+        Reconstruye la historia interna del repuesto: recepciones (`entrada`), usos en incidencias (`consumo`),
+        reservas y liberaciones. `referencia` indica el origen: `REC-xxxx` (recepción), `INC-xxxx` (incidencia)
+        o `RES-xxxx` (reserva). Los pedidos de compra todavía no están implementados.
+      parameters:
+        - $ref: '#/components/parameters/Codigo'
+      responses:
+        '200':
+          description: Movimientos del repuesto.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Movimiento' }
+              example:
+                - { tipo: entrada, cantidad: 10, referencia: REC-0001, usuario: Mantenimiento Demo, fecha: '2026-11-19T10:15:00Z' }
+                - { tipo: consumo, cantidad: 3, referencia: INC-0001, usuario: Mantenimiento Demo, fecha: '2026-11-19T11:02:00Z' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '404': { $ref: '#/components/responses/NoEncontrado' }
 
@@ -473,6 +498,16 @@ components:
             lote: { type: string, nullable: true, example: L-2026-031 }
             ubicacion: { type: string, nullable: true, example: A-03-12 }
             umbral_minimo: { type: integer, example: 5 }
+
+    Movimiento:
+      type: object
+      required: [tipo, cantidad, referencia, usuario, fecha]
+      properties:
+        tipo: { type: string, enum: [entrada, salida, reserva, liberacion, consumo], example: consumo }
+        cantidad: { type: integer, example: 3 }
+        referencia: { type: string, example: INC-0001 }
+        usuario: { type: string, example: Mantenimiento Demo }
+        fecha: { type: string, format: date-time, example: '2026-11-19T11:02:00Z' }
 
     Reserva:
       type: object

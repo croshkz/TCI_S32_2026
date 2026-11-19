@@ -9,6 +9,7 @@ from app.models import (
     EstadoReserva,
     Incidencia,
     Maquina,
+    MovimientoStock,
     Repuesto,
     Reserva,
     Ubicacion,
@@ -45,6 +46,15 @@ class RepuestoRepository(Repositorio):
             )
         ).one()
         return int(total)
+
+
+class MovimientoRepository(Repositorio):
+    def listar_por_repuesto(self, repuesto_id: int) -> Sequence[MovimientoStock]:
+        return self.session.exec(
+            select(MovimientoStock)
+            .where(MovimientoStock.repuesto_id == repuesto_id)
+            .order_by(MovimientoStock.fecha, MovimientoStock.id)
+        ).all()
 
 
 class MaquinaRepository(Repositorio):
