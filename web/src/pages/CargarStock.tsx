@@ -11,6 +11,7 @@ export default function CargarStock() {
   const [confirmacion, setConfirmacion] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
+  const [lote, setLote] = useState('')
 
   useEffect(() => {
     api.GET('/ubicaciones').then(({ data }) => {
@@ -82,7 +83,7 @@ export default function CargarStock() {
 
         <div className="campo">
           <label htmlFor="lote">Lote</label>
-          <input type="text" id="lote" name="lote" placeholder="Ej: L-2026-045" required />
+          <input type="text" id="lote" name="lote" placeholder="Ej: L-2026-045" value={lote} onChange={(evento) => setLote(evento.target.value)} required />
         </div>
 
         <div className="campo">
@@ -106,7 +107,7 @@ export default function CargarStock() {
           <input type="file" id="remito" name="remito" accept="image/*,application/pdf" />
         </div>
 
-        <button type="submit" className="btn-principal" disabled={enviando || !repuesto}>
+        <button type="submit" className="btn-principal" disabled={enviando || !repuesto || lote.trim() === ''}>
           {enviando ? 'Cargando…' : 'Cargar stock'}
         </button>
       </form>
