@@ -184,11 +184,11 @@ En modo desarrollo, Vite reenvía `/api` a la API real en `localhost:8000`.
 | [`api/`](api/) | Backend: `app/` (routers, services, repositories, modelos), `alembic/` (migraciones), `tests/` |
 | [`web/`](web/) | Front: `src/pages/` (pantallas), `src/api/` (cliente generado y hooks), `nginx.conf` |
 | [`openapi.yaml`](openapi.yaml) | Contrato de la API |
-| [`docs/`](docs/) | Especificación, diagramas y maquetas |
+| [`docs/`](docs/) | Especificación, diagramas, maquetas, [ADRs](docs/adr/README.md) y [responsables por caso de uso](docs/responsables.md) |
 | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Integración continua |
 
 ## Cómo colaborar
 
-Trabajamos con feature branches y Pull Requests a `main`, con al menos una aprobación de otro integrante. El detalle está en [CONTRIBUTING.md](CONTRIBUTING.md) y los acuerdos del equipo en [TEAM_CHARTER.md](TEAM_CHARTER.md).
+Trabajamos con feature branches y Pull Requests a `main`, con al menos una aprobación de otro integrante. Cada caso de uso tiene un responsable ([docs/responsables.md](docs/responsables.md)) y las decisiones de arquitectura se registran como ADR en [docs/adr/](docs/adr/README.md). El detalle está en [CONTRIBUTING.md](CONTRIBUTING.md) y los acuerdos del equipo en [TEAM_CHARTER.md](TEAM_CHARTER.md).
 
 Este repo es un fork del repositorio de la cátedra. Para traer sus novedades: `git pull upstream main`.
