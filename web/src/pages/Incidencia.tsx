@@ -14,6 +14,9 @@ export default function Incidencia() {
   const [creada, setCreada] = useState<{ id?: string; estado?: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
+  const [codigoMaquina, setCodigoMaquina] = useState('')
+  const [descripcion, setDescripcion] = useState('')
+  const incompleto = codigoMaquina.trim() === '' || descripcion.trim() === ''
 
   async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
@@ -37,6 +40,8 @@ export default function Incidencia() {
     if (data) {
       setCreada(data)
       formulario.reset()
+      setCodigoMaquina('')
+      setDescripcion('')
     } else {
       setError(mensajeDeError(error, 'No se pudo registrar la incidencia.'))
     }
@@ -47,12 +52,12 @@ export default function Incidencia() {
       <form onSubmit={enviar}>
         <div className="campo">
           <label htmlFor="codigo-maquina">Máquina</label>
-          <input type="text" id="codigo-maquina" name="codigo_maquina" placeholder="Código QR de la máquina" required />
+          <input type="text" id="codigo-maquina" name="codigo_maquina" placeholder="Código QR de la máquina" value={codigoMaquina} onChange={(evento) => setCodigoMaquina(evento.target.value)} required />
         </div>
 
         <div className="campo">
           <label htmlFor="descripcion">Descripción del problema</label>
-          <textarea id="descripcion" name="descripcion" placeholder="Describí el problema que observaste…" rows={4} required />
+          <textarea id="descripcion" name="descripcion" placeholder="Describí el problema que observaste…" rows={4} value={descripcion} onChange={(evento) => setDescripcion(evento.target.value)} required />
         </div>
 
         <div className="campo">
@@ -69,7 +74,7 @@ export default function Incidencia() {
           </select>
         </div>
 
-        <button type="submit" className="btn-principal" disabled={enviando}>
+        <button type="submit" className="btn-principal" disabled={enviando || incompleto}>
           {enviando ? 'Enviando…' : 'Enviar'}
         </button>
       </form>
