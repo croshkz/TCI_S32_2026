@@ -43,6 +43,7 @@ export default function CargarStock() {
       setConfirmacion(`Stock cargado. Stock resultante: ${data.stock_disponible}`)
       if (repuesto) setRepuesto({ ...repuesto, stock_disponible: data.stock_disponible })
       formulario.reset()
+      setLote('')
     } else {
       setError(mensajeDeError(error, 'No se pudo cargar el stock.'))
     }
