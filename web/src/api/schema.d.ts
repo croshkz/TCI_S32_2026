@@ -123,6 +123,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/repuestos/{codigo}/movimientos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Historial de movimientos de un repuesto, del más antiguo al más reciente (RN-06)
+         * @description Reconstruye la historia interna del repuesto: recepciones (`entrada`), usos en incidencias (`consumo`),
+         *     reservas y liberaciones. `referencia` indica el origen: `REC-xxxx` (recepción), `INC-xxxx` (incidencia)
+         *     o `RES-xxxx` (reserva). Los pedidos de compra todavía no están implementados.
+         */
+        get: operations["listarMovimientos"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/repuestos/{codigo}/usos": {
         parameters: {
             query?: never;
@@ -298,6 +320,24 @@ export interface components {
             ubicacion: string | null;
             /** @example 5 */
             umbral_minimo: number;
+        };
+        Movimiento: {
+            /**
+             * @example consumo
+             * @enum {string}
+             */
+            tipo: "entrada" | "salida" | "reserva" | "liberacion" | "consumo";
+            /** @example 3 */
+            cantidad: number;
+            /** @example INC-0001 */
+            referencia: string;
+            /** @example Mantenimiento Demo */
+            usuario: string;
+            /**
+             * Format: date-time
+             * @example 2026-11-19T11:02:00Z
+             */
+            fecha: string;
         };
         Reserva: {
             /** @example RES-0001 */
@@ -637,6 +677,49 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Repuesto"];
+                };
+            };
+            401: components["responses"]["NoAutenticado"];
+            404: components["responses"]["NoEncontrado"];
+        };
+    };
+    listarMovimientos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Código QR o de barras del repuesto. */
+                codigo: components["parameters"]["Codigo"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Movimientos del repuesto. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "tipo": "entrada",
+                     *         "cantidad": 10,
+                     *         "referencia": "REC-0001",
+                     *         "usuario": "Mantenimiento Demo",
+                     *         "fecha": "2026-11-19T10:15:00Z"
+                     *       },
+                     *       {
+                     *         "tipo": "consumo",
+                     *         "cantidad": 3,
+                     *         "referencia": "INC-0001",
+                     *         "usuario": "Mantenimiento Demo",
+                     *         "fecha": "2026-11-19T11:02:00Z"
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["Movimiento"][];
                 };
             };
             401: components["responses"]["NoAutenticado"];

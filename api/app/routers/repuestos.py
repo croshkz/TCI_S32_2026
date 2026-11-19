@@ -7,7 +7,7 @@ from app.db import get_session
 from app.dependencias import stock_service
 from app.models import Rol
 from app.repositories import UbicacionRepository
-from app.schemas import RepuestoRespuesta, StockRespuesta, UsoCrear, UsoRespuesta
+from app.schemas import MovimientoRespuesta, RepuestoRespuesta, StockRespuesta, UsoCrear, UsoRespuesta
 from app.services import StockService
 
 router = APIRouter(tags=["stock"])
@@ -20,6 +20,15 @@ def obtener_repuesto(
     servicio: StockService = Depends(stock_service),
 ) -> RepuestoRespuesta:
     return RepuestoRespuesta.desde(servicio.consultar(codigo))
+
+
+@router.get("/repuestos/{codigo}/movimientos", response_model=list[MovimientoRespuesta])
+def listar_movimientos(
+    codigo: str,
+    _usuario: Usuario = Depends(usuario_actual),
+    servicio: StockService = Depends(stock_service),
+) -> list[MovimientoRespuesta]:
+    return [MovimientoRespuesta.desde(movimiento) for movimiento in servicio.historial(codigo)]
 
 
 @router.post("/repuestos/{codigo}/usos", status_code=status.HTTP_201_CREATED, response_model=UsoRespuesta)

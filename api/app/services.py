@@ -26,6 +26,7 @@ from app.repositories import (
     CuentaRepository,
     IncidenciaRepository,
     MaquinaRepository,
+    MovimientoRepository,
     RepuestoRepository,
     ReservaRepository,
     UbicacionRepository,
@@ -78,10 +79,16 @@ class StockService:
         self.repuestos = RepuestoRepository(session)
         self.incidencias = IncidenciaRepository(session)
         self.ubicaciones = UbicacionRepository(session)
+        self.movimientos = MovimientoRepository(session)
 
     def consultar(self, codigo: str) -> EstadoStock:
         repuesto = self._repuesto(codigo)
         return EstadoStock(repuesto, self.repuestos.stock_reservado(repuesto.id))
+
+    def historial(self, codigo: str) -> list[MovimientoStock]:
+        # RN-06: la historia interna del repuesto se reconstruye desde sus movimientos, en orden.
+        repuesto = self._repuesto(codigo)
+        return list(self.movimientos.listar_por_repuesto(repuesto.id))
 
     def registrar_uso(self, codigo: str, destino_id: str, cantidad: int, usuario: Usuario) -> EstadoStock:
         validar_cantidad(cantidad)
