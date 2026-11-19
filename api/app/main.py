@@ -14,6 +14,10 @@ app = FastAPI(
     title="API de Stock y Mantenimiento de Planta",
     version="0.2.0",
     description="Grupo 3 - S32",
+    servers=[
+        {"url": "/api", "description": "A través de Nginx (http://localhost:8080)"},
+        {"url": "/", "description": "Directo a la API (http://localhost:8000)"},
+    ],
 )
 
 
