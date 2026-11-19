@@ -139,6 +139,7 @@ Los tests usan una base aparte (`planta_test`), que se crea sola y se vacía ant
 | [`test_auth_jwt.py`](api/tests/test_auth_jwt.py) | Login, expiración y firma del token, que el rol no se pueda alterar editando el token, contraseñas hasheadas y seed idempotente. |
 | [`test_auth_y_endpoints.py`](api/tests/test_auth_y_endpoints.py) | 401 y 403 por rol, alta de incidencias con fotos, paso a reparación, turno y carga de stock (RN-08). |
 | [`test_incidencias.py`](api/tests/test_incidencias.py) | Flujo de incidencias: reporte con foto, máquina inexistente, permisos, paso a reparación y transición inválida. |
+| [`test_rn08_recepcion.py`](api/tests/test_rn08_recepcion.py) | RN-08: alta de recepción de stock, actualización de lote y ubicación, remito, movimiento `ENTRADA` inmutable y restricción por rol. |
 | [`test_contrato.py`](api/tests/test_contrato.py) | El backend implementa exactamente las operaciones de `openapi.yaml`, ni más ni menos. |
 
 ## Contrato y cliente generado
