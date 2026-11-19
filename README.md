@@ -18,14 +18,14 @@ Sistema para que el personal de una planta reporte fallas en las máquinas, regi
 
 ```
 navegador ──► web (Nginx :8080) ──/api/*──► api (FastAPI :8000) ──► db (PostgreSQL :5432)
-                                  /health──►
+                                  /health, /docs, /openapi.json──►
 
 mock (Prism :4010): sirve respuestas de ejemplo de openapi.yaml, solo para desarrollo del front
 ```
 
 | Servicio | Tecnología | Qué hace |
 | --- | --- | --- |
-| `web` | React + Vite, servido por Nginx | Front. Nginx sirve los estáticos y reenvía `/api/*` y `/health` a la API. |
+| `web` | React + Vite, servido por Nginx | Front. Nginx sirve los estáticos y reenvía `/api/*`, `/health`, `/docs` y `/openapi.json` a la API. |
 | `api` | FastAPI + SQLModel + Alembic | Reglas de negocio, autenticación JWT y persistencia. Capas: routers → services → repositories. |
 | `db` | PostgreSQL 16 | Base de datos. Los datos persisten en el volumen `datos-postgres`. |
 | `mock` | Prism | Mock del contrato. El producto desplegado **no** lo usa. |
@@ -47,8 +47,11 @@ Cuando los servicios estén listos:
 | Qué | URL |
 | --- | --- |
 | Aplicación web | http://localhost:8080 |
-| Documentación interactiva de la API (Swagger) | http://localhost:8000/docs |
+| Documentación interactiva de la API (Swagger) | http://localhost:8080/docs |
+| Especificación OpenAPI que sirve la API | http://localhost:8080/openapi.json |
 | Estado del backend | http://localhost:8080/health |
+
+Swagger también responde directo en http://localhost:8000/docs. El selector **Servers** decide a dónde van los requests de *Try it out*: `/api` pasa por Nginx (es la opción predeterminada) y `/` va directo a la API. Si abrís Swagger en el puerto 8000, elegí `/`.
 
 Al arrancar, el contenedor `api` aplica las migraciones (`alembic upgrade head`) y carga los datos de ejemplo (`python -m app.seed`). El seed solo carga datos si las tablas están vacías, así que reiniciar los contenedores no duplica nada.
 
@@ -102,7 +105,7 @@ Los números suponen la base recién creada. Si ya la usaste, corré `docker com
 4. **Stock insuficiente.** Intentá usar 20 unidades. Aparece "La cantidad supera el stock disponible (5)." y el stock no cambia.
 5. **Cargar stock recibido.** En **Cargar stock**, con `REP-6204` cargado, completá lote `L-2026-045`, cantidad 10, ubicación `A-03-12` y tocá **Cargar stock**. Aparece "Stock cargado. Stock resultante: 15".
 
-### Parte 2: reservas en Swagger (http://localhost:8000/docs)
+### Parte 2: reservas en Swagger (http://localhost:8080/docs)
 
 Las reservas todavía no tienen pantalla en el front; se prueban desde Swagger.
 
