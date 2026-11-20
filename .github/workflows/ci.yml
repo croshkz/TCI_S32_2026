@@ -54,7 +54,7 @@ jobs:
         run: uv run pytest -q
 
   contrato-y-web:
-    name: Contrato · cliente generado · build del front
+    name: Contrato · cliente generado · tests y build del front
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,6 +79,9 @@ jobs:
 
       - name: Verificar que schema.d.ts está sincronizado con el contrato
         run: pnpm check:cliente
+
+      - name: Tests del front (Vitest)
+        run: pnpm test:web
 
       - name: Compilar el front
         run: pnpm build

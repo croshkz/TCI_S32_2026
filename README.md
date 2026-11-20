@@ -121,7 +121,9 @@ Las reservas todavía no tienen pantalla en el front; se prueban desde Swagger.
 La suite corre en GitHub Actions en cada push a `main` y en cada Pull Request ([ver ejecuciones](https://github.com/croshkz/TCI_S32_2026/actions/workflows/ci.yml)). El CI tiene dos jobs:
 
 - **API:** levanta PostgreSQL, aplica las migraciones sobre una base vacía y corre `pytest`.
-- **Contrato y web:** valida `openapi.yaml`, verifica que el cliente generado esté sincronizado con el contrato y compila el front.
+- **Contrato y web:** valida `openapi.yaml`, verifica que el cliente generado esté sincronizado con el contrato, corre los tests del front y lo compila.
+
+### Backend (pytest)
 
 Para correrla en tu máquina necesitás Docker y [uv](https://docs.astral.sh/uv/):
 
@@ -146,6 +148,24 @@ Los tests usan una base aparte (`planta_test`), que se crea sola y se vacía ant
 | [`test_incidencias.py`](api/tests/test_incidencias.py) | Flujo de incidencias: reporte con foto, máquina inexistente, permisos, paso a reparación y transición inválida. |
 | [`test_rn08_recepcion.py`](api/tests/test_rn08_recepcion.py) | RN-08: alta de recepción de stock, actualización de lote y ubicación, remito, movimiento `ENTRADA` inmutable y restricción por rol. |
 | [`test_contrato.py`](api/tests/test_contrato.py) | El backend implementa exactamente las operaciones de `openapi.yaml`, ni más ni menos. |
+
+### Front (Vitest + Testing Library)
+
+No necesitan Docker ni la API: corren en Node con jsdom y la API se simula en cada test.
+
+```bash
+pnpm test:web          # una vez
+pnpm --dir web test:watch   # se vuelven a correr al guardar
+```
+
+| Archivo | Qué cubre |
+| --- | --- |
+| [`Login.test.tsx`](web/src/pages/Login.test.tsx) | Ingreso con la sesión guardada; credenciales inválidas muestran el error de la API y limpian la contraseña. |
+| [`RegistrarUso.test.tsx`](web/src/pages/RegistrarUso.test.tsx) | Envío de destino y cantidad; aviso de stock mínimo cuando la API informa la alerta (RN-02) y sin aviso cuando no; mensaje de rechazo por stock insuficiente (RN-01). |
+| [`CargarStock.test.tsx`](web/src/pages/CargarStock.test.tsx) | No se envía sin lote; se envían lote, cantidad y ubicación, y el formulario se limpia después (RN-08, regresión del #25). |
+| [`client.test.ts`](web/src/api/client.test.ts) | El token viaja en cada request; un 401 cierra la sesión y avisa a la app; un 401 en el login no se toma como sesión vencida. |
+
+La API simulada vive en [`web/src/test/api.ts`](web/src/test/api.ts): cada test declara qué responde cada ruta (`'POST /api/auth/login': {...}`) y después puede revisar qué requests se mandaron.
 
 ## Contrato y cliente generado
 

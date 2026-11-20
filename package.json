@@ -14,6 +14,7 @@
     "dev:web": "pnpm --dir web run dev",
     "dev": "pnpm run db && concurrently -n mock,api,web -c magenta,green,cyan \"pnpm:dev:mock\" \"pnpm:dev:api\" \"pnpm:dev:web\"",
     "test": "pnpm run db && uv --directory api run pytest",
+    "test:web": "pnpm --dir web run test",
     "build": "pnpm --dir web run build"
   },
   "devDependencies": {
